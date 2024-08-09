@@ -1,0 +1,49 @@
+// controllers/patient.js
+const axios = require('axios');
+const config = require('../config');
+
+module.exports = {
+  async getPatient(req, res) {
+    // ... (same code as before)
+  },
+
+  async createPatientInNexCloud(req, res) {
+    const patientData = req.body;
+
+    // Map the patient data to the NexCloud API format
+    const nexCloudPatientData = {
+      name: patientData.name,
+      patientType: patientData.patientType,
+      patientStatus: patientData.patientStatus,
+      phone: patientData.phone,
+      email: patientData.email,
+    };
+
+    try {
+      // Authenticate with NexCloud API
+      const authResponse = await axios.post(`${config.nexCloudApiUrl}/auth`, {
+        ApplicationID: config.applicationId,
+        GroupID: config.groupId,
+        Username: config.username,
+        Password: config.password,
+      });
+
+      // Get the authentication token
+      const authToken = authResponse.data.Token;
+
+      // Create a new patient in NexCloud
+      const response = await axios.post(`${config.nexCloudApiUrl}/Patient`, nexCloudPatientData, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      // Return the response data
+      res.json(response.data);
+    } catch (error) {
+      // Handle any errors
+      console.error(error);
+      res.status(500).json({ message: 'Error creating patient in NexCloud' });
+    }
+  },
+};

@@ -1,0 +1,30 @@
+// controllers/agency.js
+const axios = require('axios');
+const config = require('../config');
+
+module.exports = {
+  async createPatientInAgency(req, res) {
+    const patientData = req.body;
+
+    // Map the patient data to the Agency API format
+    const agencyPatientData = {
+      name: patientData.name,
+      patientType: patientData.patientType,
+      patientStatus: patientData.patientStatus,
+      phone: patientData.phone,
+      email: patientData.email,
+    };
+
+    try {
+      // Create a new patient in Agency
+      const response = await axios.post(`${config.agencyApiUrl}/Patient`, agencyPatientData);
+
+      // Return the response data
+      res.json(response.data);
+    } catch (error) {
+      // Handle any errors
+      console.error(error);
+      res.status(500).json({ message: 'Error creating patient in Agency' });
+    }
+  },
+};
